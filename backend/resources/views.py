@@ -7,12 +7,9 @@ from .models import Resource
 from .serializers import *
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import SessionAuthentication
-
+from .authentication import AdminJWTAuthentication
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
     def enforce_csrf(self, request):
@@ -161,7 +158,7 @@ class AdminLoginView(APIView):
     
 class AdminResourceListCreateView(APIView):
 
-    authentication_classes = [JWTAuthentication, CsrfExemptSessionAuthentication]
+    authentication_classes = [AdminJWTAuthentication, CsrfExemptSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
 
@@ -194,7 +191,7 @@ class AdminResourceListCreateView(APIView):
         )
           
 class AdminResourceDetailView(APIView):
-    authentication_classes = [JWTAuthentication, CsrfExemptSessionAuthentication]
+    authentication_classes = [AdminJWTAuthentication, CsrfExemptSessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_object(self, id):
@@ -240,3 +237,16 @@ class AdminResourceDetailView(APIView):
             {"message": "Resource deleted"},
             status=204
         )
+        
+class GetResourcesView(APIView):
+    
+    def get(self, request):
+
+        resources = Resource.objects.all()
+        serializer = ResourceListSerializer(
+            resources,
+            many=True,
+            context={"request": request}
+        )
+
+        return Response(serializer.data)

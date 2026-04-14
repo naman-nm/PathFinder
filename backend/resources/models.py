@@ -44,6 +44,14 @@ class AdminUser(models.Model):
 
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
 
     def save(self, *args, **kwargs):
         # hash password before saving

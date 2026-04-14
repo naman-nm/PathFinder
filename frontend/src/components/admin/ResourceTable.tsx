@@ -52,6 +52,8 @@ export default function ResourceTable() {
 
             <th>Type</th>
 
+            <th>Status</th> 
+
             <th>Actions</th>
 
           </tr>
@@ -67,6 +69,7 @@ export default function ResourceTable() {
               key={resource.id}
               resource={resource}
               onDelete={handleDelete}
+              onUpdated={fetchResources}
             />
 
           ))}

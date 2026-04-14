@@ -15,4 +15,6 @@ urlpatterns = [
     # Admin resource CRUD Operation Views
     path("api/admin/resources/",AdminResourceListCreateView.as_view(),name="admin_resources"),
     path("api/admin/resources/<int:id>/",AdminResourceDetailView.as_view(),name="admin_resource_detail"),
+    
+    path('get/resources/', GetResourcesView.as_view(), name='get_resources'),
 ]
