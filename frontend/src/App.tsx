@@ -13,17 +13,29 @@ import AdminPanel from "./components/admin/AdminPanel";
 import AdminAuth from "./components/AdminAuth";
 
 import { PATHFINDER_PILLARS } from "./data/resources";
-
+import ResourceDetail from "./components/ResourceDetail";
 import { getResourcesWithJWT } from "./api/resourceAdminApi";
 
 
 
 function getRouteType(pathname: string) {
 
-  const cleanedPath = pathname.replace(/\/+$/, "") || "/";
+  const cleanedPath =
+    pathname.replace(/\/+$/, "") || "/";
 
-  if (cleanedPath === "/" || cleanedPath === "/resources") {
+  if (
+    cleanedPath === "/" ||
+    cleanedPath === "/resources"
+  ) {
     return { type: "library" as const };
+  }
+
+  if (cleanedPath.startsWith("/resources/")) {
+    return {
+      type: "detail" as const,
+      slug:
+        cleanedPath.split("/resources/")[1],
+    };
   }
 
   if (cleanedPath === "/admin") {
@@ -31,9 +43,7 @@ function getRouteType(pathname: string) {
   }
 
   return { type: "not-found" as const };
-
 }
-
 
 
 function App() {
@@ -196,6 +206,34 @@ function App() {
 
   }
 
+  if (route.type === "detail") {
+
+    const resource =
+      resources.find(
+        r => r.slug === route.slug
+      );
+  
+    if (!resource) {
+  
+      return (
+        <ResourceStateNotice
+          title="Resource not found"
+          description="Invalid resource"
+        />
+      );
+  
+    }
+  
+    return (
+      <ResourceDetail
+        resource={resource}
+        onBack={() =>
+          navigateTo("/resources")
+        }
+      />
+    );
+  }
+
 
 
   /*
@@ -282,52 +320,27 @@ function App() {
           filteredResources.length > 0 && (
 
             <div className="resource-grid">
-
               {filteredResources.map((resource) => (
-
                 <ResourceCard
-
-                  key={resource.id}
-
-                  id={resource.id}
-
-                  title={resource.title}
-
-                  description={resource.description}
-
-                  category={resource.category}
-
-                  resourceType={resource.resource_type}
-
-                  slug={resource.slug}
-
-                  thumbnail={
-                    resource.thumbnail_url
-                  }
-
-                  tags={resource.tags}
-
-                  readTime={
-                    resource.read_time
-                  }
-
-                  actionLabel="View Details"
-
-                  onAction={() =>
-                    console.log(
-                      resource.slug
-                    )
-                  }
-
+                key={resource.id}
+                id={resource.id}
+                title={resource.title}
+                description={resource.description}
+                category={resource.category}
+                resourceType={resource.resource_type}
+                slug={resource.slug}
+                thumbnail={resource.thumbnail_url}
+                tags={resource.tags}
+                readTime={resource.read_time}
+                actionLabel="View Details"
+                onAction={() =>
+                  navigateTo(`/resources/${resource.slug}`)
+                }
                 />
-
               ))}
-
             </div>
 
           )}
-
-
 
         {!loading &&
           filteredResources.length === 0 && (

@@ -354,27 +354,20 @@ export default function ResourceCard({
 
             {/* Right: Access CTA */}
             <button
-              onClick={handleAccess}
-              className="group/btn flex items-center gap-1.5 text-sm font-semibold transition-all duration-200"
-              style={{ color: isHovered ? "#00B4B4" : "#1FC8C8" }}
-              aria-label={`${actionLabel} ${title}`}
-            >
-              {actionLabel}
-              <svg
-                className="transition-transform duration-200 group-hover/btn:translate-x-1"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                onClick={handleAccess}
+                style={{
+                  background: "#B6E82A",
+                  color: "#1A1A2E",
+                  padding: "8px 14px",
+                  borderRadius: "8px",
+                  border: "none",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all .2s ease"
+                }}
               >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </button>
+                {actionLabel}
+              </button>
           </div>
         </div>
       </div>
