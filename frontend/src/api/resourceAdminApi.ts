@@ -36,7 +36,7 @@ const handleResponse = async (response: Response) => {
 
 export const getResources = async () => {
   const response = await fetch(
-    `${BASE_URL}/api/admin/resources/`,
+    `${BASE_URL}api/admin/resources/`,
     {
       method: "GET",
       headers: getHeaders(),
@@ -50,7 +50,7 @@ export const getResources = async () => {
 export const getResourcesWithJWT = async () => {
   try {
     const response = await fetch(
-      `${BASE_URL}/get/resources/`
+      `${BASE_URL}get/resources/`
       , {
       method: "GET",
     });
