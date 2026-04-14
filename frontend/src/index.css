@@ -5,7 +5,7 @@
 :root {
   color: #1a1a2e;
   background: linear-gradient(180deg, #d6def0 0%, #c2ccde 100%);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: League Gothic, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 }
@@ -309,7 +309,7 @@ a {
   font-size: clamp(2.2rem, 4vw, 4rem);
   line-height: 0.98;
   letter-spacing: -0.04em;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: League Gothic, sans-serif;
 }
 
 .resource-detail__eyebrow-row {
