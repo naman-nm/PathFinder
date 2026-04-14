@@ -1,28 +1,66 @@
-import { useState } from "react";
-import { updateResource } from "../../api/resourceAdminApi";
+import { useState, ChangeEvent, FormEvent } from "react";
+import { updateResource, createResource } from "../../api/resourceAdminApi";
 
 const CATEGORIES = ["framework", "playbook", "market_map", "case_study", "tool", "blog"];
 const TYPES = ["pdf", "video", "template", "article"];
 
-export default function ResourceEditModal({ resource, onClose, onUpdated }: any) {
-  const [form, setForm] = useState({
-    title: resource.title || "",
-    slug: resource.slug || "",
-    summary: resource.summary || "",
-    description: resource.description || "",
-    category: resource.category || "",
-    resource_type: resource.resource_type || "",
-    read_time: resource.read_time || "",
-    tags: (resource.tags || []).join(", "),
-    is_featured: resource.is_featured || false,
-    is_published: resource.is_published || false,
+interface Resource {
+  id: number;
+  title: string;
+  slug: string;
+  summary: string;
+  description: string;
+  category: string;
+  resource_type: string;
+  read_time: string;
+  tags: string[];
+  is_featured: boolean;
+  is_published: boolean;
+}
+
+interface FormData {
+  title: string;
+  slug: string;
+  summary: string;
+  description: string;
+  category: string;
+  resource_type: string;
+  read_time: string;
+  tags: string;
+  is_featured: boolean;
+  is_published: boolean;
+}
+
+interface ResourceEditModalProps {
+  resource?: Resource;
+  mode?: "create" | "edit";
+  onClose: () => void;
+  onUpdated: () => void;
+}
+
+export default function ResourceEditModal({ resource, mode = "edit", onClose, onUpdated }: ResourceEditModalProps) {
+  const [form, setForm] = useState<FormData>({
+    title: resource?.title || "",
+    slug: resource?.slug || "",
+    summary: resource?.summary || "",
+    description: resource?.description || "",
+    category: resource?.category || "",
+    resource_type: resource?.resource_type || "",
+    read_time: resource?.read_time || "",
+    tags: (resource?.tags || []).join(", "),
+    is_featured: resource?.is_featured || false,
+    is_published: resource?.is_published || (mode === "create" ? true : false),
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e: any) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target as HTMLInputElement;
+    const checked = type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined;
+    setForm((prev) => ({ 
+      ...prev, 
+      [name]: type === "checkbox" ? checked : value 
+    }));
   };
 
   const handleSubmit = async () => {
@@ -33,14 +71,26 @@ export default function ResourceEditModal({ resource, onClose, onUpdated }: any)
         ...form,
         tags: form.tags.split(",").map((t: string) => t.trim()).filter(Boolean),
       };
-      await updateResource(resource.id, payload);
-      onUpdated();
+      
+      if (mode === "create") {
+        await createResource(payload);
+        // Refresh page after creating resource
+        setTimeout(() => window.location.reload(), 500);
+      } else {
+        if (resource?.id) {
+          await updateResource(resource.id, payload);
+          onUpdated();
+        }
+      }
     } catch {
-      setError("Failed to update resource. Please try again.");
+      setError(`Failed to ${mode === "create" ? "create" : "update"} resource. Please try again.`);
     } finally {
       setLoading(false);
     }
   };
+
+  const modalTitle = mode === "create" ? "Create Resource" : "Edit Resource";
+  const submitButtonText = mode === "create" ? "Create Resource" : "Save Changes";
 
   return (
     <div style={overlay}>
@@ -48,7 +98,7 @@ export default function ResourceEditModal({ resource, onClose, onUpdated }: any)
 
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-          <h2 style={{ margin: 0, color: "#1A1A2E", fontSize: 20 }}>Edit Resource</h2>
+          <h2 style={{ margin: 0, color: "#1A1A2E", fontSize: 20 }}>{modalTitle}</h2>
           <button onClick={onClose} style={closeBtn}>✕</button>
         </div>
 
@@ -56,21 +106,23 @@ export default function ResourceEditModal({ resource, onClose, onUpdated }: any)
 
         <div style={grid}>
           <Field label="Title">
-            <input name="title" value={form.title} onChange={handleChange} style={input} />
+            <input name="title" value={form.title} onChange={handleChange} style={input} placeholder="Resource title" />
           </Field>
 
           <Field label="Slug">
-            <input name="slug" value={form.slug} onChange={handleChange} style={input} />
+            <input name="slug" value={form.slug} onChange={handleChange} style={input} placeholder="resource-slug" />
           </Field>
 
           <Field label="Category">
             <select name="category" value={form.category} onChange={handleChange} style={input}>
+              <option value="">Select category</option>
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </Field>
 
           <Field label="Resource Type">
             <select name="resource_type" value={form.resource_type} onChange={handleChange} style={input}>
+              <option value="">Select type</option>
               {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           </Field>
@@ -85,11 +137,11 @@ export default function ResourceEditModal({ resource, onClose, onUpdated }: any)
         </div>
 
         <Field label="Summary">
-          <textarea name="summary" value={form.summary} onChange={handleChange} style={{ ...input, height: 72, resize: "vertical" }} />
+          <textarea name="summary" value={form.summary} onChange={handleChange} style={{ ...input, height: 72, resize: "vertical" }} placeholder="Brief summary of the resource" />
         </Field>
 
         <Field label="Description">
-          <textarea name="description" value={form.description} onChange={handleChange} style={{ ...input, height: 100, resize: "vertical" }} />
+          <textarea name="description" value={form.description} onChange={handleChange} style={{ ...input, height: 100, resize: "vertical" }} placeholder="Detailed description" />
         </Field>
 
         {/* Toggles */}
@@ -108,7 +160,7 @@ export default function ResourceEditModal({ resource, onClose, onUpdated }: any)
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
           <button onClick={onClose} style={cancelBtn}>Cancel</button>
           <button onClick={handleSubmit} disabled={loading} style={saveBtn}>
-            {loading ? "Saving..." : "Save Changes"}
+            {loading ? "Saving..." : submitButtonText}
           </button>
         </div>
 

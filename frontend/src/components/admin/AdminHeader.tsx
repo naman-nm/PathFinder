@@ -1,14 +1,19 @@
 import { logout } from "../../api/resourceAdminApi";
 
-export default function AdminHeader() {
+interface AdminHeaderProps {
+  onCreateClick?: () => void;
+}
+
+export default function AdminHeader({ onCreateClick }: AdminHeaderProps) {
 
   const handleLogout = async () => {
     try {
       await logout();
       localStorage.removeItem("access_token");
+      localStorage.removeItem("admin_token");
 
-      // 👇 redirect using browser
-      window.location.href = "/admin/";
+      // redirect using browser
+      window.location.href = "/";
 
     } catch (error) {
       console.error("Logout failed:", error);
@@ -38,6 +43,7 @@ export default function AdminHeader() {
       <div style={{ display: "flex", gap: "10px" }}>
 
         <button
+          onClick={onCreateClick}
           style={{
             background: "#B6E82A",
             border: "none",
@@ -48,7 +54,7 @@ export default function AdminHeader() {
             color: "#1A1A2E"
           }}
         >
-          + Add Resource
+          + Create Resource
         </button>
 
         <button
